@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Remove unwanted metrics, optimize memory consumption, and optimize QPS requests
 
-package loadHttp
+package requester
 
 import (
 	"time"
