@@ -1,4 +1,4 @@
-// Copyright 2022 Authors of spidernet-io
+// Copyright 2022 Authors of ii2day
 // SPDX-License-Identifier: Apache-2.0
 
 package stats
