@@ -219,10 +219,10 @@ func (b *Work) makeRequest(c *http.Client) {
 }
 
 func (b *Work) runWorker() {
-	//var ticker *time.Ticker
-	//if b.QPS > 0 {
-	//	ticker = time.NewTicker(time.Duration(1e6*b.Concurrency/(b.QPS)) * time.Microsecond)
-	//}
+	var ticker *time.Ticker
+	if b.QPS > 0 {
+		ticker = time.NewTicker(time.Duration(1e6*b.Concurrency/(b.QPS)) * time.Microsecond)
+	}
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
@@ -251,9 +251,9 @@ func (b *Work) runWorker() {
 		case <-b.stopCh:
 			return
 		default:
-			//if b.QPS > 0 {
-			//	<-ticker.C
-			//}
+			if b.QPS > 0 {
+				<-ticker.C
+			}
 			b.makeRequest(client)
 		}
 	}
