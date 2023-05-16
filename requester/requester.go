@@ -197,10 +197,14 @@ func (b *Work) makeRequest(c *http.Client) {
 	}
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 	resp, err := c.Do(req)
+	var statusCode int
 	if err == nil {
 		size = resp.ContentLength
 		_, _ = io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
+		statusCode = resp.StatusCode
+	} else {
+		statusCode = 0
 	}
 	t := b.now()
 	resDuration = t - resStart
@@ -208,7 +212,7 @@ func (b *Work) makeRequest(c *http.Client) {
 
 	b.results <- &result{
 		duration:      finish,
-		statusCode:    resp.StatusCode,
+		statusCode:    statusCode,
 		err:           err,
 		contentLength: size,
 		connDuration:  connDuration,
