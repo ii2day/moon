@@ -6,6 +6,7 @@ import (
 	"github.com/ii2day/moon/requester"
 	"math"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -17,8 +18,29 @@ var (
 	m = flag.String("m", "GET", "")
 )
 
+var usage = `Usage: hey [options...] <url>
+
+Options:
+  -c  Number of workers to run concurrently. Total number of requests cannot
+      be smaller than the concurrency level. Default is 50.
+  -q  Rate limit, in queries per second (QPS) per worker. Default is no rate limit.
+  -d  Duration of application to send requests. When duration is reached,
+      application stops and exits. If duration is specified, n is ignored.
+      Examples: -d 10s -d 3m.
+  -m  HTTP method, one of GET, POST, PUT, DELETE, HEAD, OPTIONS.
+  -H  Custom HTTP header. You can specify as many as needed by repeating the flag.
+      For example, -H "Accept: text/html" -H "Content-Type: application/xml" .
+  -t  Timeout for each request in seconds. Default is 20, use 0 for infinite.
+`
+
 func main() {
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, fmt.Sprintf(usage))
+	}
 	flag.Parse()
+	if flag.NArg() < 1 {
+		usageAndExit("")
+	}
 	dur := *d
 	url := flag.Args()[0]
 	method := strings.ToUpper(*m)
@@ -62,4 +84,14 @@ func main() {
 		metrics.Latencies.Mean))
 	fmt.Printf("status code: %v \n", metrics.StatusCodes)
 	fmt.Printf("errors: %v \n", metrics.Errors)
+}
+
+func usageAndExit(msg string) {
+	if msg != "" {
+		fmt.Fprintf(os.Stderr, msg)
+		fmt.Fprintf(os.Stderr, "\n\n")
+	}
+	flag.Usage()
+	fmt.Fprintf(os.Stderr, "\n")
+	os.Exit(0)
 }
