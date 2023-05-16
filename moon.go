@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ii2day/moon/requester"
+	"math"
 	"net/http"
 	"strings"
 	"time"
@@ -23,9 +24,10 @@ func main() {
 	method := strings.ToUpper(*m)
 	req, _ := http.NewRequest(method, url, nil)
 	w := &requester.Work{
-		Request:     req,
-		QPS:         *q,
-		Concurrency: *c,
+		Request:       req,
+		NumberRequest: math.MaxInt32,
+		QPS:           *q,
+		Concurrency:   *c,
 	}
 	w.Init()
 	if dur > 0 {
@@ -41,17 +43,14 @@ func main() {
 	fmt.Printf("Success: %v \n", metrics.Success)
 	fmt.Printf("Duration: %v \n", metrics.Duration)
 	fmt.Printf("reuqests/sec: %v \n", metrics.Rate)
-	fmt.Printf("Latencies: %v \n", metrics.Latencies)
-	latencies := `
-Latencies:
-        P50InMs: %v 
-        P90InMs: %v 
-        P95InMs: %v 
-        P99InMs: %v 
-        MaxInMs: %v 
-        MinInMs: %v 
-        MeanInMs: %v 
-`
+	latencies := `Latencies:
+  P50: %vms 
+  P90: %vms 
+  P95: %vms 
+  P99: %vms 
+  Max: %vms 
+  Min: %vms 
+  Mean: %vms`
 	fmt.Println(fmt.Sprintf(
 		latencies,
 		metrics.Latencies.P50,
@@ -61,6 +60,6 @@ Latencies:
 		metrics.Latencies.Max,
 		metrics.Latencies.Min,
 		metrics.Latencies.Mean))
-	fmt.Printf("status code: %v", metrics.StatusCodes)
-	fmt.Printf("errors: %v", metrics.Errors)
+	fmt.Printf("status code: %v \n", metrics.StatusCodes)
+	fmt.Printf("errors: %v \n", metrics.Errors)
 }
